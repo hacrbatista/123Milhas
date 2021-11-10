@@ -145,11 +145,8 @@ class FlightService
     }
 
     private function grupoMaisBarato($grupos) {
-        usort($grupos, function($a, $b) {
-            return $a['totalPrice'] <=> $b['totalPrice'];
-        });
-
-        return $grupos[0];
+        $grupos = collect($grupos);
+        return $grupos->sortBy('totalPrice')->first();
     }
 
 }

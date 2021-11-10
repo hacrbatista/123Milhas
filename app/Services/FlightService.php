@@ -67,11 +67,11 @@ class FlightService
     }
 
     private function agrupandoVoosPelaDirecao($voos) {
-        $array = [];
-        foreach($voos as $key => $value) {
-            $array[$key] = $value->groupBy('direction');
+        $collect = collect();
+        foreach($voos as $value) {
+            $collect->push($value->groupBy('direction'));
         }
-        return $array;
+        return $collect;
     }
 
     private function agrupandoVoosPeloPreco($voos) {

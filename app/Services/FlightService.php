@@ -145,9 +145,11 @@ class FlightService
     }
 
     private function grupoMaisBarato($grupos) {
-        return array_reduce($grupos, function($a, $b){
-            return $a['totalPrice'] < $b['totalPrice'] ? $a : $b;
-        }, array_shift($grupos));
+        usort($grupos, function($a, $b) {
+            return $a['totalPrice'] <=> $b['totalPrice'];
+        });
+
+        return $grupos[0];
     }
 
 }

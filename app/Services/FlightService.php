@@ -76,10 +76,11 @@ class FlightService
     }
 
     private function agrupandoVoosPeloPreco($voos) {
+        $array = [];
         $collect = [];
         foreach($voos as $key => $value) {
-            $collect[$key] = $value->map(function ($item, $k) use ($key, $voos) {
-                return $voos[$key][$k] = $item->mapToGroups(function ($i) {
+            $collect[$key] = $value->map(function ($item, $k) use ($key, $array) {
+                return $array[$key][$k] = $item->mapToGroups(function ($i) {
                     return [$i['price'] => $i['id']];
                 });
             });

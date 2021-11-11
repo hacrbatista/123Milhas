@@ -120,8 +120,8 @@ class FlightService
         foreach ($voos as $key => $value) {
             $array['groups'][$key]['uniqueId'] = $key + 1;
             $array['groups'][$key]['totalPrice'] = $this->precoTotalGrupo($value, $response);
-            $array['groups'][$key]['outbound']['id'] = $value[0]->toArray();
-            $array['groups'][$key]['inbound']['id'] = $value[1]->toArray();
+            $array['groups'][$key]['outbound'] = $this->preparandoIdIdaVolta($value[0]);
+            $array['groups'][$key]['inbound'] = $this->preparandoIdIdaVolta($value[1]);
         }
         $array['totalGroups'] = $voos->count();
         $array['totalFlights'] = $response->count();
@@ -135,6 +135,14 @@ class FlightService
         $pv1 = $response->where('id', $grupo[0][0])->first()['price'];
         $pv2 = $response->where('id', $grupo[1][0])->first()['price'];
         return $pv1 + $pv2;
+    }
+
+    private function preparandoIdIdaVolta($grupo) {
+        $array = [];
+        foreach($grupo as $value) {
+            $array[] = ['id' => $value];
+        }
+        return $array;
     }
 
     private function precoGrupoMaisBarato($grupos) {

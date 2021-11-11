@@ -48,7 +48,7 @@ class FlightService
         // Preparando o retorno
         $return = $this->preparandoRetorno($data);
 
-        return $return;
+        return response()->json($return,200);
     }
 
     private function ordenandoVoos($voos) {

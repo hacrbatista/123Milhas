@@ -31,7 +31,7 @@ class FlightService
         $data = $this->criandoPropriedadeDirecao($data);
 
         // Agrupando os voos pelo fare (Tarifa)
-        $data = $this->agrupandoVoosPeloFare($data);
+        $data = $this->agrupandoVoosPeloTarifa($data);
 
         // Agrupando os voos pelo direction (outbound ou inbound)
         $data = $this->agrupandoVoosPelaDirecao($data);
@@ -62,37 +62,39 @@ class FlightService
         });
     }
 
-    private function agrupandoVoosPeloFare($voos) {
+    private function agrupandoVoosPeloTarifa($voos) {
         return $voos->groupBy('fare');
     }
 
     private function agrupandoVoosPelaDirecao($voos) {
         $collect = collect();
-        foreach($voos as $value) {
-            $collect->push($value->groupBy('direction'));
-        }
+        $voos->map(function ($item) use ($collect) {
+            $collect->push($item->groupBy('direction'));
+        });
+
         return $collect;
     }
 
     private function agrupandoVoosPeloPreco($voos) {
+        $collect = [];
         foreach($voos as $key => $value) {
-            foreach ($value as $k => $v) {
-                $voos[$key][$k] = $v->mapToGroups(function ($item, $key) {
-                    return [$item['price'] => $item['id']];
+            $collect[$key] = $value->map(function ($item, $k) use ($key, $voos) {
+                return $voos[$key][$k] = $item->mapToGroups(function ($i) {
+                    return [$i['price'] => $i['id']];
                 });
-            }
+            });
         }
 
-        return $voos;
+        return collect($collect);
     }
 
     private function criandoMatrixIdaVolta($voos) {
         $array = [];
         $collect = collect();
-        foreach($voos as $key => $value) {
-            foreach ($value as $k => $v) {
-                $array[$k] = $v;
-            }
+        foreach($voos as $value) {
+            $array = $value->map(function ($item, $key) use ($array) {
+                return $array[$key] = $item;
+            });
             $collect->push($array['outbound']->crossJoin($array['inbound']));
         }
 
@@ -101,10 +103,10 @@ class FlightService
 
     private function unindoGrupos($voos) {
         $collect = collect();
-        foreach($voos as $key => $value) {
-            foreach ($value as $k => $v) {
-                $collect->push($v);
-            }
+        foreach($voos as $value) {
+            $value->map(function ($item) use ($collect) {
+                $collect->push($item);
+            });
         }
 
         return $collect;
